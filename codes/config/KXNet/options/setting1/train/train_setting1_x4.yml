@@ -1,0 +1,74 @@
+#### general settings
+name: KXNet_setting1_x4
+use_tb_logger: true
+model: blind
+distortion: sr
+scale: 4
+gpu_ids: [0]
+
+degradation:
+  random_kernel: True   # False
+  ksize: 21
+  sig_min: 0.2  # 0.2 for all
+  sig_max: 4.0  # 2.0 for 2, 3.0 for 3, 4.0 for 4
+  rate_iso: 1.0
+  noise: False
+  random_disturb: false
+
+#### datasets
+datasets:
+  train:
+    name: DIV2K_Flickr2K
+    mode: GT
+    dataroot_GT: ../../data/DIV2K_Flickr2K
+    use_shuffle: true
+    n_workers: 8
+    batch_size: 12
+    GT_size: 256  # 128 for 2, 192 for 3, 256 for 4
+    LR_size: 64
+    use_flip: true
+    use_rot: true
+    color: RGB
+  val:
+    name: DIV2K_val10
+    mode: LQGT
+    dataroot_GT: ../../data/valset/DIV2K_valid10_iso/HR/x4
+    dataroot_LQ: ../../data/valset/DIV2K_valid10_iso/LRblur/x4
+
+#### network structures
+network_G:
+  which_model_G: KXNet
+  setting:
+    upscale: 4
+    s_iter: 19
+    kernel_size: 21
+    ker_auxi_path: ../../../auxi_batch_ker.pth
+
+#### path
+path:
+  pretrain_model_G: ~ 
+  strict_load: true
+  resume_state: ~ 
+#### training settings: learning rate scheme, loss
+train:
+  lr_G: !!float 2e-4
+  lr_scheme: MultiStepLR
+  beta1: 0.9
+  beta2: 0.99
+  niter: 1000000
+  warmup_iter: -1  # no warm up
+  lr_steps: [200000, 400000, 600000, 800000, 1000000]
+  lr_gamma: 0.5
+  eta_min: !!float 1e-7
+
+  pixel_criterion: l1
+  pixel_weight: 1.0
+
+  manual_seed: 0
+  val_freq:  !!float 5e3
+
+#### logger
+logger:
+  print_freq:  1000
+  save_checkpoint_freq:  !!float 5e3
+  save_trainresult_freq: ~

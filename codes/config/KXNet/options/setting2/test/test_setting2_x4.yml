@@ -1,0 +1,89 @@
+name: KXNet_setting2_x4
+suffix: ~  # add suffix to saved images
+model: blind
+distortion: sr
+scale: 4
+crop_border: ~  # crop border when evaluation. If None(~), crop the scale pixels
+gpu_ids: [0]
+
+datasets:
+  test0:
+    name: DIV2K_val10
+    mode: LQGT
+    dataroot_GT: ../../data/valset/DIV2K_valid10_aniso/HR/x4
+    dataroot_LQ: ../../data/valset/DIV2K_valid10_aniso/LRblur/x4
+  test1:
+    name: Set5
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise0/Set5_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise0/Set5_direct/LRblur/x4
+  test2:
+    name: Set14
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise0/Set14_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise0/Set14_direct/LRblur/x4
+  test3:
+    name: BSDS100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise0/BSD100_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise0/BSD100_direct/LRblur/x4
+  test4:
+    name: Urban100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise0/Urban100_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise0/Urban100_direct/LRblur/x4
+
+  test1_noise5:
+    name: Set5
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise5/Set5_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise5/Set5_direct/LRblur/x4
+  test2_noise5:
+    name: Set14
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise5/Set14_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise5/Set14_direct/LRblur/x4
+  test3_noise5:
+    name: BSDS100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise5/BSD100_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise5/BSD100_direct/LRblur/x4
+  test4_noise5:
+    name: Urban100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise5/Urban100_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise5/Urban100_direct/LRblur/x4
+
+  test1_noise15:
+    name: Set5
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise15/Set5_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise15/Set5_direct/LRblur/x4
+  test2_noise15:
+    name: Set14
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise15/Set14_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise15/Set14_direct/LRblur/x4
+  test3_noise15:
+    name: BSDS100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise15/BSD100_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise15/BSD100_direct/LRblur/x4
+  test4_noise15:
+    name: Urban100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting2/aniso_noise15/Urban100_direct/HR/x4
+    dataroot_LQ: ../../data/testset/setting2/aniso_noise15/Urban100_direct/LRblur/x4
+
+#### network structures
+network_G:
+  which_model_G: KXNet
+  setting:
+    upscale: 4
+    s_iter: 19
+    kernel_size: 21
+    ker_auxi_path: ../../../auxi_batch_anisokerx4.pth
+
+#### path
+path:
+  pretrain_model_G: ../../../checkpoints/KXNet_setting2_x4.pth

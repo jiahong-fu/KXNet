@@ -1,0 +1,47 @@
+name: KXNet_setting1_x2
+suffix: ~  # add suffix to saved images
+model: blind
+distortion: sr
+scale: 2 # 2
+crop_border: ~  # crop border when evaluation. If None(~), crop the scale pixels
+gpu_ids: [0]
+
+datasets:
+  test0:
+    name: DIV2K_val10
+    mode: LQGT
+    dataroot_GT: ../../data/valset/DIV2K_valid10_iso/HR/x2
+    dataroot_LQ: ../../data/valset/DIV2K_valid10_iso/LRblur/x2
+  test1:
+    name: Set5
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting1/Set5_direct/HR/x2
+    dataroot_LQ: ../../data/testset/setting1/Set5_direct/LRblur/x2
+  test2:
+    name: Set14
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting1/Set14_direct/HR/x2
+    dataroot_LQ: ../../data/testset/setting1/Set14_direct/LRblur/x2
+  test3:
+    name: BSDS100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting1/BSD100_direct/HR/x2
+    dataroot_LQ: ../../data/testset/setting1/BSD100_direct/LRblur/x2
+  test4:
+    name: urban100
+    mode: LQGT
+    dataroot_GT: ../../data/testset/setting1/Urban100_direct/HR/x2
+    dataroot_LQ: ../../data/testset/setting1/Urban100_direct/LRblur/x2
+
+#### network structures
+network_G:
+  which_model_G: KXNet
+  setting:
+    upscale: 2
+    s_iter: 19
+    kernel_size: 21
+    ker_auxi_path: ../../../auxi_batch_ker.pth
+
+#### path
+path:
+  pretrain_model_G: ../../../checkpoints/KXNet_setting1_x2.pth
