@@ -40,11 +40,11 @@ python3 train.py -opt=options/setting1/train/train_setting2_x2.yml
 For distributed training
 ```bash
 cd codes/config/KXNet
-python3 -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 train.py -opt=options/setting1/train/train_setting2_x2.yml --launcher pytorch
+python3 -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 train.py -opt=options/setting2/train/train_setting2_x2.yml --launcher pytorch
 ```
 
 ## Test on Synthetic Images
 ```bash
 cd codes/config/KXNet
-python3 test.py -opt=options/setting1/test/test_setting2_x2.yml
+python3 test.py -opt=options/setting2/test/test_setting2_x2.yml
 ```
