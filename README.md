@@ -1,6 +1,6 @@
 # KXNet: A Model-Driven Deep Neural Network for Blind Super-Resolution (ECCV, 2022)
 Jiahong Fu, Hong Wang, Qi Xie, Qian Zhao, Deyu Meng, and Zongben Xu\
-​[[Paper]](https://arxiv.org/pdf/2209.10305.pdf) [[Supplementary Material]]()\
+​[[Paper]](https://arxiv.org/pdf/2209.10305.pdf) [[Supplementary Material]](https://drive.google.com/file/d/1eyYJRcDZ6ERtmx0PGA6UNEDKJg_gf6Ir/view?usp=share_link)\
 Implementation of 'KXNet: A Model-Driven Deep Neural Network for Blind Super-Resolution' (ECCV2022)
 
 This repo is build on the basis of [[DAN]](https://github.com/greatlog/DAN) and [[IKC]](https://github.com/yuanjunchai/IKC)
