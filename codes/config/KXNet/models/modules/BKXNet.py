@@ -223,23 +223,11 @@ class XNet(nn.Module):
         pad = (k_h - 1) // 2
         transpose_out_padding = (H + 2*pad - k_h) % sf
         E = self.BatchBlur(input=x, kernel=k, stride=sf) - y
-        # print('E.min():{}, E.max():{}'.format(E.min(), E.max()))
         G_t = self.BatchTranspose(input=E, kernel=k, stride=sf, output_padding=transpose_out_padding)
-        # print('G_t.max:{}, G_t.min:{}, G_t.shape():{}'.format(G_t.max(), G_t.min(), G_t.shape))
         #####################   E_ones for uneven overlap ################
         E_ones = torch.ones_like(E)
         G_ones_t = self.BatchTranspose(input=E_ones, kernel=k, stride=sf, output_padding=transpose_out_padding)
-        # print('G_ones_t.max():{}, G_ones_t.min():{}'.format(G_ones_t.max(), G_ones_t.min()))
-        # print("k.max():{}, k.min():{}".format(k.max(), k.min()))
         G_t = G_t / (G_ones_t + 1e-10)  
-        ###################################################################
-
-        # if torch.any(torch.isnan(G_t)):
-        #     print("G_t maybe Nan!")
-        #     print("G_t.max:{}, G_t.min:{}".format(G_t.max(), G_t.min()))
-        #     torch.save(G_ones_t, "/home/iid/FJH/1/G_ones_t.pth")
-        #     torch.save(G_t, "/home/iid/FJH/1/G_t.pth")
-        # print('E.shape:{}, E_ones.shape:{}'.format(E.shape, E_ones.shape))
 
         # G = x - eta/100 * G_t    # Remarking for direct concat
         x_con = inver_PS(x, sf) # 3*sf*sf
@@ -255,37 +243,6 @@ class XNet(nn.Module):
         # print("X_est.max:{}, X_est.min:{}".format(X_est.max(), X_est.min()))
         return X_est, AV_X
 
-# class XNet(nn.Module):
-#     def __init__(self):
-#         super(XNet, self).__init__()
-#         self.X_ProNet = X_ProNet(channels=35)
-#         self.BatchBlur = BatchBlur()
-#         self.BatchTranspose = BatchTranspose()
-
-#     def forward(self, x, AV_X, y, k, sf, eta):
-#         ##### Done 这里也考虑换成Bxhxw的kernel作为输入
-#         N, C, H, W = x.size() 
-#         k_B, k_h, k_w = k.size() 
-#         pad = (k_h - 1) // 2
-#         transpose_out_padding = (H + 2*pad - k_h) % sf
-#         E = self.BatchBlur(input=x, kernel=k, stride=sf) - y
-
-#         G_t = self.BatchTranspose(input=E, kernel=k, stride=sf, output_padding=transpose_out_padding)
-#         # print('G_t.max:{}, G_t.min:{}, G_t.shape():{}'.format(G_t.max(), G_t.min(), G_t.shape))
-#         for i in range(len(G_t)):
-#             savepath = os.path.join( "/home/wqza/Documents/FJH/KXNet/codes/data/G_t_img/{:d}.png".format(i))
-#             print('G_t_img.dim:', G_t[0].shape)
-#             G_t_img = util.tensor2img(G_t[i, :, :, :].detach().float().cpu())
-#             print('G_t_img.shape', G_t_img.shape)
-#             util.save_img(G_t_img, savepath)
-#         # print('x.shape:', x.shape)
-#         G = x - eta * G_t
-#         G_auxi = torch.cat((G, AV_X), dim=1)    # AV_X is auxiliary variable
-#         X_est_auxi = self.X_ProNet(G_auxi)
-#         X_est = X_est_auxi[:, :3, :, :]
-#         AV_X = X_est_auxi[:, 3:, :, :]
-#         return X_est, AV_X
-
 class KNet(nn.Module):
     def __init__(self, kernel_size):
         super(KNet, self).__init__()
@@ -300,14 +257,7 @@ class KNet(nn.Module):
         k_B, k_h, k_w, = k.size()  
         pad = (k_h - 1) // 2
         x_col_trans = BC_im2col(input=x, channel=C, kernel_size=k_h, stride=sf) # x_col_trans:(B, kxk, Cxhxw)
-        # x_col = x_col_trans.permute(0,2,1)  # permute(0,2,1) x_col:(B, Cxhxw, kxk)
-        # k = k.view(k_B, k_h*k_w, 1)
-        # y_t = y.view(N_y, C_y*h*w, 1)
-        # print('x_col.shape:', x_col.shape)
-        # print('k.shape:', k.shape)
-        # print('torch.matmul(x_col, k).shape:', torch.matmul(x_col, k).shape)
-        # print('y_t.shape:', y_t.shape)
-        # R = torch.matmul(x_col, k.view(k_B, k_h*k_w,1)) - y_t    # R:(B, Cxhxw, 1)
+
         R = (self.BatchBlur(input=x, kernel=k, stride=sf) - y).view(N_y, C_y*h*w, 1)
         G_K = (1 / (C_y*h*w)) * torch.matmul(x_col_trans, R)   # G_K:(B, kxk, 1)
         G_K = k.view(k_B, k_h*k_w,1) - gamma/10 * G_K
@@ -352,7 +302,6 @@ class KNet(nn.Module):
 
 ##### Auxiliary Variable's kernel ######
 AV_X_ker_def = (torch.FloatTensor([[0.0,1.0,0.0],[1.0,-4.0,1.0],[0.0,1.0,0.0]])).unsqueeze(dim=0).unsqueeze(dim=0)
-# AV_X_ker_def = (torch.FloatTensor([[0.0,0.0,0.0],[0.0,1.0,0.0],[0.0,1.0,0.0]])).unsqueeze(dim=0).unsqueeze(dim=0)
 
 # main Network architecture
 
@@ -378,13 +327,6 @@ class KXNet(nn.Module):
         self.eta_x = torch.Tensor([1.0])
         self.gamma_stage = self.Make_Para(self.iter, self.gamma_k)
         self.eta_stage = self.Make_Para(self.iter, self.eta_x)
-
-        # self.upscale = nn.Sequential(
-        #     nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
-        #     nn.Conv2d(64, 256, kernel_size=3, stride=1, padding=1),
-        #     nn.PixelShuffle(2),
-        #     nn.Conv2d(64, 3, kernel_size=3, stride=1, padding=1)
-        # )
 
     def Make_XNet(self, iters):
         layers = []
@@ -425,9 +367,9 @@ class KXNet(nn.Module):
         k_est = torch.as_tensor(self.gaussian_kernel_2d(kernel_size=self.ksize, sigma=1.0), dtype=torch.float32)
 
         # k_est = self.Make_kernel_ini(h_k=self.ksize, w_k=self.ksize, ratio=sf, mode='bicubic')
-        # print('Init_k_est.min:{}, Init_k_est.max:{}, Init_sum_k:{}'.format(torch.min(k_est), torch.max(k_est), torch.sum(k_est)))
+
         k_est = k_est.unsqueeze(dim=0).repeat(B, 1, 1).cuda()
-        # print('Init_k_est.min:{}, Init_k_est.max:{}, Init_sum_k:{}'.format(torch.min(k_est), torch.max(k_est), torch.sum(k_est)))
+
         ##### Done #######
         # AV_X = F.conv2d(X_est, self.AV_X_ker, stride=1, padding=1)  # Auxiliary Variable
         AV_X = F.conv2d(x, self.AV_X_ker, stride=1, padding=1)  # Auxiliary Variable
@@ -439,17 +381,10 @@ class KXNet(nn.Module):
         for i in range(self.iter):
             # print("################ stage:{} ##################".format(i))
             k_est, AV_k = self.K_stage[i](X_est, x, k_est, AV_k, self.scale, self.gamma_stage[i])
-            # k_est = k
-            # print("k_est.shape in loop:{}".format(k_est.shape))
-            # k_est = k
             X_est, AV_X = self.X_stage[i](X_est, AV_X, x, k_est, self.scale, self.eta_stage[i])
-            # print('stage:{}, gamma:{}'.format(i, self.gamma_stage[i]))
-            # print('stage:{}, eta:{}'.format(i, self.eta_stage[i]))
-            # print('k_est.min:{}, k_est.max:{}, k_est.sum:{}'.format(torch.min(k_est), torch.max(k_est), torch.sum(k_est)))
-            # print('X_est.min:{}, X_est.max:{}'.format(torch.min(X_est), torch.max(X_est)))
-            # print("kernel shape:{}".format(k_est.shape))
+
             srs.append(X_est)
             kernel.append(k_est)
 
-        # return [srs_init, srs, kernel]
         return [srs, kernel]
+
